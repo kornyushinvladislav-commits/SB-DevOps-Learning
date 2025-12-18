@@ -7,12 +7,12 @@ echo -e "1 - Install SertCenter\n2 - Customize Sert. Center\n3 - Get server sert
 read -p "Enter a number: " number
 case $number in
    1) echo 'pattern 1'
-      exit 1
+      # exit 1
       # Install Sert. Center
       sudo apt-get update
       ;;
    2) echo 'pattern 2'
-      exit 1
+      # exit 1
       # Customize Sert. Center
       sudo apt-get install openvpn easy-rsa
       sudo mkdir /etc/openvpn/easy-rsa
@@ -26,7 +26,7 @@ case $number in
       sudo ./easyrsa gen-cl
       ;;
    3) echo 'pattern 3'
-      exit 1
+      # exit 1
       # Get server sertificate
       sudo ./easyrsa build-server-full server nopass
  
@@ -39,7 +39,7 @@ case $number in
       sudo cp ./pki/private/server.key /etc/openvpn/server.key
       ;;
    4) echo 'pattern 4'
-      exit 1
+      # exit 1
       # Server config-file
       sudo zcat /usr/share/doc/openvpn/examples/sample-config-files/server.conf.gz | sudo tee /etc/openvpn/server/server.conf
  
@@ -68,18 +68,18 @@ case $number in
       ;;
  
    5) echo 'pattern 5'
-      exit 1
+      # exit 1
       # Start OpenVPN Server. After server.conf changes
       sudo openvpn /etc/openvpn/server/server.conf
       # Initialization Sequence Completed ???
       ;;
    6) echo 'pattern 6'
-      exit 1
+      # exit 1
       # Enable ip_forwarding
       sudo sysctl -w net.ipv4.ip_forward=1
       ;;
    7) echo 'pattern 7'
-      exit 1
+      # exit 1
       # Configuring the firewall
       sudo iptables -A INPUT -i enp1s3 -m state --state NEW -p udp --dport 1194 -j ACCEPT
       sudo iptables -A INPUT -i tun+ -j ACCEPT
@@ -94,3 +94,4 @@ case $number in
 esac
  
 echo 'The end of fquest!'
+
