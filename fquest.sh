@@ -2,36 +2,38 @@
 
 echo "Hello, $USER!"
 
-echo "S - server C - client"
-read -p "Where will we work?  " where_wrk
+LOGFILENAME="/home/fquest/log/fquest.log"
+date_timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+echo "$date_timestamp : start ConfiguringFirewall ()" >> $LOGFILENAME
+sudo mkdir /home/$USER/log 2>> $LOGFILENAME
+
+#echo "S - server C - client"
+#read -p "Where will we work?  " where_wrk
 
 #============================================================================================================
 #============================================================================================================
-#if [ $where_wrk == "S" ]; then
+#if [ "$where_wrk== "S" ]; then
 #   echo "S will be selected"
 #else
 #   echo "C will be selected"
 #fi
 
 function testing_fnc ()
-{ 
+{
    exit 0
-} 
+}
 #testing_fnc "enp0s3"
-#exit 1 
-#============================================================================================================
-#============================================================================================================
+#exit 1
 
-#echo -e "1 - Install SertCenter\n2 - Customize Sert. Center\n3 - Get server sertif\n4 - Server config-file\n\
-#5 - Start OpenVPN Server\n6 - Enable ip_forwarding\n7 - Configuring the firewall\n* - Exit"
-#read -p "Enter a number: " number
+#============================================================================================================
+#============================================================================================================
 
 # Configuring the firewall
 # $1 - network interface
 function ConfiguringFirewall ()
 {
-   # ip a / ip -br a
-   #
+   # use ip a (or ip -br a) for see network interface name.
+   # Result:
    #   1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
    #      link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
    #      inet 127.0.0.1/8 scope host lo
@@ -45,41 +47,43 @@ function ConfiguringFirewall ()
    #      inet6 fe80::a00:27ff:fee4:26a3/64 scope link 
    #         valid_lft forever preferred_lft forever
 
-   sudo iptables -A INPUT -i $1 -m state --state NEW -p udp --dport 1194 -j ACCEPT
-   sudo iptables -A INPUT -i tun+ -j ACCEPT
-   sudo iptables -A FORWARD -i tun+ -j ACCEPT
-   sudo iptables -A FORWARD -i tun+ -o $1 -m state --state RELATED,ESTABLISHED -j ACCEPT
-   sudo iptables -A FORWARD -i $1 -o tun+ -m state --state RELATED,ESTABLISHED -j ACCEPT
-   sudo iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o $1 -j MASQUERADE
+   date_timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+   echo "$date_timestamp : start ConfiguringFirewall ()" >> $LOGFILENAME
+   sudo iptables -A INPUT -i $1 -m state --state NEW -p udp --dport 1194 -j ACCEPT 2>> $LOGFILENAME
+   sudo iptables -A INPUT -i tun+ -j ACCEPT 2>> $LOGFILENAME
+   sudo iptables -A FORWARD -i tun+ -j ACCEPT 2>> $LOGFILENAME
+   sudo iptables -A FORWARD -i tun+ -o $1 -m state --state RELATED,ESTABLISHED -j ACCEPT 2>> $LOGFILENAME
+   sudo iptables -A FORWARD -i $1 -o tun+ -m state --state RELATED,ESTABLISHED -j ACCEPT 2>> $LOGFILENAME
+   sudo iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o $1 -j MASQUERADE 2>> $LOGFILENAME
 }
 
 # Start OpenVPN Server service. After server.conf changes
 # $1 - config-file name /etc/openvpn/server/server.conf or /etc/openvpn/server/client.conf
 function StartOVPN ()
 {
-  sudo openvpn $1
-  # Do you see "Initialization Sequence Completed" ?
+        date_timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+        echo "$date_timestamp : start StartOVPN ()" >> $LOGFILENAME
+        sudo openvpn $1
+        # Do you see "Initialization Sequence Completed" ?
 }
 
 # Install Sertification Center
-function InstallOVPN ()
+function InstallOVPN_srv ()
 {
-        sudo apt-get update
-        if [ $where_wrk == "S" ]; then # && sudo apt-get install openvpn easy-rsa ]; then
-                sudo apt-get install openvpn easy-rsa
-                exit 0
-        elif [ $where_wrk == "C" ]; then # && sudo apt-get install openvpn ]; then
-                sudo apt-get install openvpn
-                exit 0
-        else
-                exit 33
-        fi
+        date_timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+        echo "$date_timestamp : start InstallOVPN ()" >> $LOGFILENAME
+        sudo apt-get update 2>> $LOGFILENAME
+        # This is server. Install openvpn and easy-rsa
+        sudo apt-get install openvpn easy-rsa 2>> $LOGFILENAME
 }
+
 # Get server config-file
 function GetServerConfigFile ()
 {
 #       sudo zcat /usr/share/doc/openvpn/examples/sample-config-files/server.conf.gz | sudo tee /etc/openvpn/server/server.conf
-        sudo cp /usr/share/doc/openvpn/examples/sample-config-files/server.conf /etc/openvpn/server/server.conf
+        date_timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+        echo "$date_timestamp : start GetServerConfigFile ()" >> $LOGFILENAME
+        sudo cp /usr/share/doc/openvpn/examples/sample-config-files/server.conf /etc/openvpn/server/server.conf 2>> $LOGFILENAME
         echo "Your need editing server.config (/etc/openvpn/server/server.conf)!"
         echo -e "
         port 1194\n\
@@ -107,60 +111,52 @@ function GetServerConfigFile ()
 # Customize Sert. Center
 function CustomSertCenter ()
 {
-        #   if [ $where_wrk == "C" ]; then
-        sudo mkdir /etc/openvpn/easy-rsa
-        sudo mkdir /etc/openvpn/easy-rsa/pki/
+        date_timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+        echo "$date_timestamp : start CustomSertCenter () " >> $LOGFILENAME
+        sudo mkdir /etc/openvpn/easy-rsa 2>> $LOGFILENAME
+        sudo mkdir /etc/openvpn/easy-rsa/pki/ 2>> $LOGFILENAME
 
-        sudo cp -R /usr/share/easy-rsa /etc/openvpn/
-        cd /etc/openvpn/easy-rsa/
+        sudo cp -R /usr/share/easy-rsa /etc/openvpn/ 2>> $LOGFILENAME
+        cd /etc/openvpn/easy-rsa/ 2>> $LOGFILENAME
         # create pki-directory and required files
-        sudo ./easyrsa init-pki
+        sudo ./easyrsa init-pki 2>> $LOGFILENAME
         # create certification authority key
-        sudo ./easyrsa build-ca
+        sudo ./easyrsa build-ca 2>> $LOGFILENAME
         # create Diffy-Hoffman key
-        sudo ./easyrsa gen-dh
+        sudo ./easyrsa gen-dh 2>> $LOGFILENAME
         # create Hash-based Message Authentication Code (HMAC) key for TLS-authority
-        sudo openvpn --genkey --secret /etc/openvpn/easy-rsa/pki/ta.key
+        sudo openvpn --genkey --secret /etc/openvpn/easy-rsa/pki/ta.key 2>> $LOGFILENAME
         # create cancellation certificate
-        sudo ./easyrsa gen-crl
-        #  else
-        #     echo "This is client execution! NOT A SERVER!"
-        #     exit 30
-        #  #  fi
+        sudo ./easyrsa gen-crl 2>> $LOGFILENAME
 }
 
 # Get server sertificate
 function GetServerSertificate ()
 {
-        # if [ $where_wrk == "C" ] then
-        cd /etc/openvpn/easy-rsa/
+        date_timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+        echo "$date_timestamp : start GetServerSertificate () " >> $LOGFILENAME
+        cd /etc/openvpn/easy-rsa/ 2>> $LOGFILENAME
 
-        sudo ./easyrsa build-server-full server nopass
+        sudo ./easyrsa build-server-full server nopass 2>> $LOGFILENAME
         # cd ./pki
-        # # copy certificates to server directory
-        sudo cp ./pki/ca.crt /etc/openvpn/server/ca.crt
-        sudo cp ./pki/dh.pem /etc/openvpn/server/dh.pem
-        sudo cp ./pki/crl.pem /etc/openvpn/server/crl.pem
-        sudo cp ./pki/ta.key /etc/openvpn/server/ta.key
-        sudo cp ./pki/issued/server.crt /etc/openvpn/server/server.crt
-        sudo cp ./pki/private/server.key /etc/openvpn/server/server.key
-        #else
-        #echo "This is client execution! NOT A SERVER!"
-        #exit 30
-        ##fi
+        # copy certificates to server directory
+        sudo cp ./pki/ca.crt /etc/openvpn/server/ca.crt 2>> $LOGFILENAME
+        sudo cp ./pki/dh.pem /etc/openvpn/server/dh.pem 2>> $LOGFILENAME
+        sudo cp ./pki/crl.pem /etc/openvpn/server/crl.pem 2>> $LOGFILENAME
+        sudo cp ./pki/ta.key /etc/openvpn/server/ta.key 2>> $LOGFILENAME
+        sudo cp ./pki/issued/server.crt /etc/openvpn/server/server.crt 2>> $LOGFILENAME
+        sudo cp ./pki/private/server.key /etc/openvpn/server/server.key 2>> $LOGFILENAME
 }
 
 echo -e "1 - Install SertCenter\n2 - Customize Sert. Center\n3 - Get server sertif\n4 - Server config-file\n\
 5 - Start OpenVPN Server\n6 - Enable ip_forwarding\n7 - Configuring the firewall\n* - Exit"
 read -p "Enter a number: " number
 
-echo $number
-
 case $number in
         1)
                 echo 'pattern 1'
                 #exit 1
-                InstallOVPN
+                InstallOVPN_srv
                 ;;
         2)
                 echo 'pattern 2'
@@ -180,22 +176,15 @@ case $number in
         5)
                 echo 'pattern 5'
                 #exit 1
-                if [ $where_wrk == "S" ]; then
-                        echo "Using /etc/openvpn/server/server.conf Server OVPN config-file"
-                        StartOVPN /etc/openvpn/server/server.conf  # Start OpenVPN Server service. After server.conf changes.
-                        echo "Do you see /Initialization Sequence Completed/?"
-                elif [ $where_wrk == "C" ]; then
-                        StartOVPN ovpn
-                else
-                        echo "This is server execution! NOT CLIENT!"
-                        exit 30
-                fi
+                echo "Using /etc/openvpn/server/server.conf Server OVPN config-file"
+                StartOVPN /etc/openvpn/server/server.conf  # Start OpenVPN Server service. After server.conf changes.
+                echo "Do you see /Initialization Sequence Completed/?"
                 ;;
         6)
                 echo 'pattern 6'
                 #exit 1
                 # Enable ip_forwarding
-                sudo sysctl -w net.ipv4.ip_forward=1
+                sudo sysctl -w net.ipv4.ip_forward=1 2>> $LOGFILENAME
                 ;;
         7)
                 echo 'pattern 7'
