@@ -13,14 +13,14 @@ sudo mkdir /home/$USER/log 2>> "$LOGFILENAME"
 #============================================================================================================
 #============================================================================================================
 function testing_fnc ()
-{       
-   exit 0       
-}               
+{
+   exit 0
+}
 #testing_fnc "enp0s3"
-#exit 1         
+#exit 1
 #============================================================================================================
 #============================================================================================================
-        
+
 # Configuring the firewall
 # $1 - network interface
 function ConfiguringFirewall ()
@@ -135,52 +135,79 @@ function GetServerSertificate ()
         sudo cp ./pki/private/server.key /etc/openvpn/server/server.key 2>> "$LOGFILENAME"
 }
 
-echo -e '1 - Install SertCenter\n2 - Customize Sert. Center\n3 - Get server sertif\n4 - Server config-file\n5 - Start OpenVPN Server\n6 - Enable ip_forwarding\n7 - Configuring the firewall\n* - Exit'
-read -p 'Enter a number: ' number
+function start_proc_manualy ()
+{
+        echo -e '1 - Install SertCenter\n2 - Customize Sert. Center\n3 - Get server sertif\n4 - Server config-file\n5 - Start OpenVPN Server\n6 - Enable ip_forwarding\n7 - Configuring the firewall\n* - Exit'
+        read -p 'Enter a number: ' number
+        case $number in
+                1)
+                        echo 'pattern 1'
+                        #exit 1
+                        InstallOVPN_srv
+                        ;;
+                2)
+                        echo 'pattern 2'
+                        #exit 1
+                        CustomSertCenter
+                        ;;
+                3)
+                        echo 'pattern 3'
+                        #exit 1
+                        GetServerSertificate
+                        ;;
+                4)
+                        echo 'pattern 4'
+                        #exit 1         
+                        GetServerConfigFile
+                        ;;
+                5)
+                        echo 'pattern 5'
+                        echo 'Using "$SERVERCONFFILENAME" Server OVPN config-file'
+                        # Start OpenVPN Server service. After server.conf changes.
+                        StartOVPN "$SERVERCONFFILENAME" 2>> "$LOGFILENAME"
+                        echo 'Do you see /Initialization Sequence Completed/?'
+                        ;;
+                6)
+                        echo 'pattern 6'
+                        #exit 1
+                        # Enable ip_forwarding
+                        sudo sysctl -w net.ipv4.ip_forward=1 2>> "$LOGFILENAME"
+                        ;;
+                7)
+                        echo 'pattern 7'
+                        #exit 1
+                        # ip a (or ip -br a) for see network interface name.
+                        ConfiguringFirewall enp0s3
+                        ;;
+                *)
+                        echo 'Exit!'
+                        ;;
+        esac
+}
 
-case $number in
-        1)
-                echo 'pattern 1'
-                #exit 1
-                InstallOVPN_srv
-                ;;
-        2)
-                echo 'pattern 2'
-                #exit 1
-                CustomSertCenter
-                ;;
-        3)
-                echo 'pattern 3'
-                #exit 1
-                GetServerSertificate
-                ;;
-        4)
-                echo 'pattern 4'
-                #exit 1         
-                GetServerConfigFile
-                ;;
-        5)
-                echo 'pattern 5'
-                echo 'Using "$SERVERCONFFILENAME" Server OVPN config-file'
-                # Start OpenVPN Server service. After server.conf changes.
-                StartOVPN "$SERVERCONFFILENAME" 2>> "$LOGFILENAME"
-                echo 'Do you see /Initialization Sequence Completed/?'
-                ;;
-        6)
-                echo 'pattern 6'
-                #exit 1
-                # Enable ip_forwarding
-                sudo sysctl -w net.ipv4.ip_forward=1 2>> "$LOGFILENAME"
-                ;;
-        7)
-                echo 'pattern 7'
-                #exit 1
-                # ip a (or ip -br a) for see network interface name.
-                ConfiguringFirewall enp0s3
-                ;;
-        *)
-                echo 'Exit!'
-                ;;
-esac
+function start_proc ()
+{
+        echo '-> ::::::   Start process!'
+        InstallOVPN_srv
+        echo '-> ::::::   Customaze sertificate center'
+        CustomSertCenter
+        echo '-> ::::::   Get server sertificate files'
+        GetServerSertificate
+        echo '-> ::::::   Make server configuration file'
+        GetServerConfigFile
+        echo '-> ::::::   Enable ip_forwarding'
+        # Enable ip_forwarding
+        sudo sysctl -w net.ipv4.ip_forward=1 2>> "$LOGFILENAME"
+        echo '-> ::::::  Configuring firewall'
+        # ip a (or ip -br a) for see network interface name.
+        ConfiguringFirewall enp0s3
+        echo '-> ::::::   Start OVPN-file'
+        echo 'Using "$SERVERCONFFILENAME" OVPN server config-file'
+        # Start OpenVPN Server service. After server.conf changes.
+        StartOVPN "$SERVERCONFFILENAME" 2>> "$LOGFILENAME"
+        echo 'Do you see /Initialization Sequence Completed/?'
+}
 
+start_proc_manualy
+#start_proc
 echo 'The end of fquest!'
