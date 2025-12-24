@@ -22,14 +22,16 @@
 # Реализовано  
 fquest.sh - скрипт создания и настройки OpenVPN сервера.  
 Функции:  
-InstallOVPN_srv - утсановка необходимых сервисов и библиотек. В настоящий момент:  
-  а) openvpn  
-  б) easy-rsa  
-  г) iptables  
-  д) iptables-persistent  
-CustomSertCenter - настройка сертификационного центра.  
-GetServerSertificate - создает ключи/сертификаты: ca.key, ca.crt, dh.pem, crl.pem, server.crt, server.key, ta.key.  
-GetServerConfigFile - создает конфигурационный файл сервера в заданной дирректории.  
-StartOVPN - стартует сервис OpenVPN на созданном конфиге.  
-ConfiguringFirewall - создает правила-ограничения фаервола.
-Помимо этого выполняет включение ip_forwarding (не выделено в отдельную функцию).
+__InstallOVPN_srv__ - утсановка необходимых сервисов и библиотек. В настоящий момент:  
+  1. openvpn  
+  2. easy-rsa  
+  3. iptables  
+  4. iptables-persistent  
+
+
+__CustomSertCenter__ - настройка сертификационного центра.  
+__GetServerSertificate__ - создает ключи/сертификаты: ca.key, ca.crt, dh.pem, crl.pem, server.crt, server.key, ta.key.  
+__GetServerConfigFile__ - создает конфигурационный файл сервера в заданной дирректории.  
+__StartOVPN__ - стартует сервис OpenVPN на созданном конфиге.  
+__ConfiguringFirewall__ - создает правила-ограничения фаервола.
+Помимо этого выполняет включение __ip_forwarding__ (не выделено в отдельную функцию).
