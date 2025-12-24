@@ -1,5 +1,5 @@
-#! /bin/bash 
-        
+#! /bin/bash
+
 echo "Hello, $USER!"
 
 SERVEROVPNDIR="/etc/openvpn/server/"
@@ -14,17 +14,17 @@ sudo mkdir /home/$USER/log 2>> "$LOGFILENAME"
 #============================================================================================================
 function testing_fnc ()
 {       
-   exit 0
-}
+   exit 0       
+}               
 #testing_fnc "enp0s3"
-#exit 1
+#exit 1         
 #============================================================================================================
 #============================================================================================================
         
 # Configuring the firewall
 # $1 - network interface
 function ConfiguringFirewall ()
-{       
+{
         echo "$DATE_TIMESTAMP : start ConfiguringFirewall ()" >> "$LOGFILENAME"
         sudo iptables -A INPUT -i $1 -m state --state NEW -p udp --dport 1194 -j ACCEPT 2>> "$LOGFILENAME"
         sudo iptables -A INPUT -i tun+ -j ACCEPT 2>> "$LOGFILENAME"
@@ -41,6 +41,14 @@ function ConfiguringFirewall ()
 # $1 - config-file name /etc/openvpn/server/server.conf or /etc/openvpn/server/client.conf
 function StartOVPN ()
 {
+        pid_ovpn="$(pidof openvpn)"
+        if [ "$pid_ovpn" -gt 0 ]; then
+                echo 'sudo kill -9 "$(pidof openvpn)"' >> "$LOGFILENAME"
+                sudo kill -9 "$(pidof openvpn)" 2>> "$LOGFILENAME"
+        else
+                echo 'Not found old openvpn process!'
+        fi
+
         echo "$DATE_TIMESTAMP : start StartOVPN ()" >> "$LOGFILENAME"
         sudo openvpn $1
         # Do you see "Initialization Sequence Completed" ?
@@ -88,6 +96,7 @@ function GetServerConfigFile ()
                 "verb 3\n"\
                 "explicit-exit-notify 1" | sed 's/^[[:space:]]*//' >  "$SERVERCONFFILENAME"
 }
+
 # Customize Sert. Center
 function CustomSertCenter ()
 {
@@ -128,6 +137,7 @@ function GetServerSertificate ()
 
 echo -e '1 - Install SertCenter\n2 - Customize Sert. Center\n3 - Get server sertif\n4 - Server config-file\n5 - Start OpenVPN Server\n6 - Enable ip_forwarding\n7 - Configuring the firewall\n* - Exit'
 read -p 'Enter a number: ' number
+
 case $number in
         1)
                 echo 'pattern 1'
@@ -151,17 +161,10 @@ case $number in
                 ;;
         5)
                 echo 'pattern 5'
-                echo 'Using /etc/openvpn/server/server.conf Server OVPN config-file'
+                echo 'Using "$SERVERCONFFILENAME" Server OVPN config-file'
                 # Start OpenVPN Server service. After server.conf changes.
-                pid_ovpn="$(pidof openvpn)"
-                if [ "$pid_ovpn" -gt 0 ]; then
-                        sudo kill -9 "$(pidof openvpn)" 2>> "$LOGFILENAME"
-                else
-                        echo 'Not found old openvpn process!'
-                fi
                 StartOVPN "$SERVERCONFFILENAME" 2>> "$LOGFILENAME"
                 echo 'Do you see /Initialization Sequence Completed/?'
-                echo 'Don`t see this? Address already in use? Use this command: sudo kill -9 "$(pidof openvpn)"'
                 ;;
         6)
                 echo 'pattern 6'
@@ -181,4 +184,3 @@ case $number in
 esac
 
 echo 'The end of fquest!'
-
