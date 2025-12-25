@@ -41,3 +41,10 @@ __GetServerConfigFile__ - создает конфигурационный фай
 __StartOVPN__ - стартует сервис OpenVPN на созданном конфиге.  
 __ConfiguringFirewall__ - создает правила-ограничения фаервола.
 Помимо этого выполняет включение __ip_forwarding__ (не выделено в отдельную функцию).
+
+[fquest_cln.sh](./fquest_cln.sh) - скрипт создания и настройки клиентской части OpenVPN. 
+Функции:
+__Install_OVPNclient__ - установка openvpn на машине клиента
+__GetClientSertificate__ - создание ключей 
+__GetClientConfigFile__ - создание конфигурационного файла
+__StartClientOVPN__ - старт openvpn-сервиса (на вход подается имя файла конфига)
