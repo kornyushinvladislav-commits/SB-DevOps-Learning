@@ -6,6 +6,7 @@ SERVEROVPNDIR="/etc/openvpn/server/"
 LOGFILENAME="/home/fquest/log/fquest.log"
 SERVERCONFFILENAME="${SERVEROVPNDIR}server.conf"
 DATE_TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
+EASYRSADIR="/etc/openvpn/easy-rsa/"
 
 echo "'$DATE_TIMESTAMP' : start ConfiguringFirewall ()" >> "$LOGFILENAME"
 sudo mkdir /home/$USER/log 2>> "$LOGFILENAME"
@@ -35,6 +36,25 @@ function ConfiguringFirewall ()
 
         # Need save this configuration
         sudo netfilter-persistent save 2>> "$LOGFILENAME"
+}
+
+function MakeVarsFile ()
+{
+        sudo chmod -R a+rwx "/etc/openvpn/easy-rsa/"
+        echo -e 'if [ -z "$EASYRSA_CALLER" ]; then\n' \
+                "\t echo 'You appear to be sourcing an Easy-RSA *vars* file. This is' >&2\n" \
+                "\t echo "no longer necessary and is disallowed. See the section called" >&2\n" \
+                "\t echo "*How to use this file* near the top comments for more details." >&2\n" \
+                "\t return 1\n" > "$EASYRSADIR/vars"
+        echo -e 'fi\n' \
+                'set_var EASYRSA_REQ_COUNTRY     "RUS"\n' \
+                'set_var EASYRSA_REQ_PROVINCE    "Moscow"\n' \
+                'set_var EASYRSA_REQ_CITY        "Moscow City"\n' \
+                'set_var EASYRSA_REQ_ORG "Copyleft Certificate Co"\n' \
+                'set_var EASYRSA_REQ_EMAIL       "me@example.net"\n' \
+                'set_var EASYRSA_REQ_OU          "LLC"\n' \
+                'set_var EASYRSA_ALGO            ec\n' \
+                'set_var EASYRSA_DIGEST          "sha256"'  | sed 's/^[[:space:]]*//' >> "$EASYRSADIR/vars"
 }
 
 # Start OpenVPN Server service. After server.conf changes
@@ -189,6 +209,8 @@ function start_proc ()
 {
         echo '-> ::::::   Start process!'
         InstallOVPN_srv
+        echo '-> ::::::   MakeVarsFile'
+        MakeVarsFile
         echo '-> ::::::   Customaze sertificate center'
         CustomSertCenter
         echo '-> ::::::   Get server sertificate files'
@@ -211,3 +233,4 @@ function start_proc ()
 start_proc_manualy
 #start_proc
 echo 'The end of fquest!'
+
