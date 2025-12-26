@@ -87,7 +87,7 @@ function GetClientConfigFile ()
                 "$OVPNDIR/$ovpnclientname.key" \
                 <(echo -e "</key>\n<tls-crypt>") \
                 "$OVPNDIR/ta.key" \
-                <(echo -e "</tls-crypt>")
+                <(echo -e "</tls-crypt>") \
                 >> "$OVPNDIR/base.ovpn"
 
         #sudo chmod -R a+rwx "$OVPNDIR" 2>> "$LOGFILENAME"
