@@ -155,6 +155,12 @@ function GetServerSertificate ()
         sudo cp ./pki/private/server.key /etc/openvpn/server/server.key 2>> "$LOGFILENAME"
 }
 
+function AlertManagerIn ()
+{
+        sudo apt-get install prometheus prometheus-alertmanager prometheus-node-exporter prometheus-nginx-exporter
+        echo -e "You need to create file rules.yml edit prometheus.yml. Both in the directory /etc/prometheus/"
+}
+
 function start_proc_manualy ()
 {
         echo -e '1 - Install SertCenter\n2 - Customize Sert. Center\n3 - Get server sertif\n4 - Server config-file\n5 - Start OpenVPN Server\n6 - Enable ip_forwarding\n7 - Configuring the firewall\n* - Exit'
@@ -228,9 +234,12 @@ function start_proc ()
         # Start OpenVPN Server service. After server.conf changes.
         StartOVPN "$SERVERCONFFILENAME" 2>> "$LOGFILENAME"
         echo 'Do you see /Initialization Sequence Completed/?'
+        echo '-> ::::::   AlertManagerIn'
+        AlertManagerIn
 }
 
 start_proc_manualy
 #start_proc
 echo 'The end of fquest!'
+
 
