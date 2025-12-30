@@ -64,3 +64,41 @@ __LowMemory__ - сигнализирует о том, что доступная 
 [prometheus.yml](./prometheus.yml) - конфиг Prometheus. Внесена ссылка на [rules.yml](./rules.yml). Веб интерфейс доступен по адресу:  
     http://127.0.0.1:9090/classic/graf - просмотр мертик/аналитики инстанса    
     http://127.0.0.1:9090/classic/alerts - просмотр подключенных алертов и их статусов    
+
+4. Создание системы резервного копирования.
+
+Логирование файлов сервера (конфиги ovpn-сервера, prometheus'а и alertmanager'а и прочие файлы ovpn-сервера) сделать через создание tar-архива со сжатием (выложить на съемный носитель/съемные носители).  
+Так же предлагается хранить данные ключей сервера и клиентов для восстновления доступа. Бэкап базы делать по триггеру на внесение записи в таблицу клиентов.  
+CREATE DATABASE IF NOT EXISTS fquest;  
+
+CREATE TABLE IF NOT EXISTS ovpnclients (  
+user_id INT AUTO_INCREMENT PRIMARY KEY,  
+user_name VARCHAR(255),  
+user_type INT);  
+
+CREATE TABLE IF NOT EXISTS ovpnfiles (  
+file_id INT AUTO_INCREMENT PRIMARY KEY,  
+file_name VARCHAR(255),  
+file_text VARCHAR(255),  
+user_id INT,  
+FOREIN KEY (user_id) REFERENCES ovpnclients(user_id) ON DELETE CASCADE);  
+
+CREATE TABLE IF NOT EXISTS server_files (  
+sf_id INT NOT NULL,  
+sfname VARCHAR(20) NOT NULL,  
+sftext VARCHAR(20) NOT NULL);  
+
+INSERT INTO ovpnclients (user_name, user_type) VALUES('Server', 'S');  
+INSERT INTO ovpnclients (user_name, user_type) VALUES('Client-1', 'C');  
+INSERT INTO ovpnclients (user_name, user_type) VALUES('Client-2', 'C');  
+
+INSERT INTO server_files (file_name, file_text, user_id) VALUES('ca.crt', '<ca>---</ca>', 1);  
+INSERT INTO server_files (file_name, file_text, user_id) VALUES('ta.key', '<tls-crypt>---</tls-crypt>', 1);  
+INSERT INTO server_files (file_name, file_text) VALUES('server.key', '---', 1);  
+INSERT INTO server_files (file_name, file_text) VALUES('server.crt', '---', 1);  
+INSERT INTO server_files (file_name, file_text) VALUES('fquest.pub', '---', 1);  
+
+INSERT INTO ovpnfiles (file_name, file_text, user_id) VALUES('client.key', '<ovpnclients.user_name.key>---</ovpnclients.user_name.key>', 2);  
+INSERT INTO ovpnfiles (file_name, file_text, user_id) VALUES('client.crt', '<ovpnclients.user_name.crt>---</ovpnclients.user_name.crt>', 2);  
+
+
