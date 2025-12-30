@@ -161,6 +161,12 @@ function AlertManagerIn ()
         echo -e "You need to create file rules.yml edit prometheus.yml. Both in the directory /etc/prometheus/"
 }
 
+function SQLServerIn ()
+{
+        echo '-> :::::: SQLServerIn' >> "$LOGFILENAME"
+        sudo apt-get install mysql-server
+}
+
 function start_proc_manualy ()
 {
         echo -e '1 - Install SertCenter\n2 - Customize Sert. Center\n3 - Get server sertif\n4 - Server config-file\n5 - Start OpenVPN Server\n6 - Enable ip_forwarding\n7 - Configuring the firewall\n* - Exit'
@@ -236,10 +242,13 @@ function start_proc ()
         echo 'Do you see /Initialization Sequence Completed/?'
         echo '-> ::::::   AlertManagerIn'
         AlertManagerIn
+        echo '-> ::::::   SQLServerIn'
+        SQLServerIn
 }
 
 start_proc_manualy
 #start_proc
 echo 'The end of fquest!'
+
 
 
