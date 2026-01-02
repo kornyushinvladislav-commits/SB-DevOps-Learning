@@ -167,6 +167,35 @@ function SQLServerIn ()
         sudo apt-get install mysql-server
 }
 
+function ConfBackup ()
+{
+        echo 'Beckup Prometheus config' >> "$LOGFILENAME"
+        sudo systemctl stop prometheus 2>> "$LOGFILENAME"
+        tar -cvzf prometheus-backup.tar.gz /path/to/prometheus/data 2>> "$LOGFILENAME" # specify the target folder
+        sudo systemctl start prometheus 2>> "$LOGFILENAME"
+
+        #echo 'Backup OVPN config/ Interactiv version'
+        #sudo ./backup.sh -b "/path/to/openvpn-server" "/path/to/backup/directory" 2>> "$LOGFILENAME"
+        # mysqldump опции имя_базы [имя_таблицы] > файл.sql
+        
+}
+
+function InstallMonitoringFnc ()
+{
+        # Install MySQL database
+        SQLServerIn
+
+        echo '-> ::::::   Install Cron' >> "$LOGFILENAME"
+        sudo apt-get update
+        sudo apt-get install cron 2>> "$LOGFILENAME"
+        sudo systemctl enable cron  2>> "$LOGFILENAME"
+
+        # ::: -> manual editing crontab-file
+        # crontab -e
+        # * * * * * * 1/2 # every other Monday
+        # crontab -l
+}
+
 function start_proc_manualy ()
 {
         echo -e '1 - Install SertCenter\n2 - Customize Sert. Center\n3 - Get server sertif\n4 - Server config-file\n5 - Start OpenVPN Server\n6 - Enable ip_forwarding\n7 - Configuring the firewall\n* - Exit'
@@ -249,6 +278,7 @@ function start_proc ()
 start_proc_manualy
 #start_proc
 echo 'The end of fquest!'
+
 
 
 
