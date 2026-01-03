@@ -161,6 +161,32 @@ function AlertManagerIn ()
         echo -e "You need to create file rules.yml edit prometheus.yml. Both in the directory /etc/prometheus/"
 }
 
+function InsertServerRec ()
+{
+        OVPNDIR="/etc/openvpn/server"
+        CAKEY="/etc/openvpn/easy-rsa/pki/private"
+        TMPFILENAME="/home/fquest/log/tmp.sql"
+        echo "USE fquest_12" > "$TMPFILENAME"
+        echo "INSERT INTO ovpnclients (user_name, user_type) VALUES('Server', '0');" >> "$TMPFILENAME"
+        echo -e 'INSERT INTO server_files (file_name, file_text, user_id) VALUES (1, "ca.key",' >> "$TMPFILENAME"
+        CONFFILENAME="/home/fquest/log/insert_srv.sql"
+        cat "$TMPFILENAME" \
+                <(echo -e "'")\
+                "$CAKEY/ca.key"\
+                <(echo -e "');")\
+                > "$CONFFILENAME"
+#       echo "INSERT INTO server_files (file_name, file_text, user_id) VALUES (1, 'ca.crt', "2")" >> /home/fquest/log/insert_srv.sql
+#       echo "INSERT INTO server_files (file_name, file_text, user_id) VALUES (1, 'ta.key', "3")" >> /home/fquest/log/insert_srv.sql
+#       echo "INSERT INTO server_files (file_name, file_text, user_id) VALUES (1, 'server.key', "4")" >> /home/fquest/log/insert_srv.sql
+#       echo "INSERT INTO server_files (file_name, file_text, user_id) VALUES (1, 'server.crt', "5")" >> /home/fquest/log/insert_srv.sql
+        sudo mysql -u root < /home/fquest/log/insert_srv.sql 2>> "$LOGFILENAME"
+}
+#============================================================================================================
+#============================================================================================================
+InsertServerRec
+#============================================================================================================
+#============================================================================================================
+
 function SQLServerIn ()
 {
         echo '-> :::::: SQLServerIn' >> "$LOGFILENAME"
@@ -275,9 +301,10 @@ function start_proc ()
         SQLServerIn
 }
 
-start_proc_manualy
+#start_proc_manualy
 #start_proc
 echo 'The end of fquest!'
+
 
 
 
