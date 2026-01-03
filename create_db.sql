@@ -8,5 +8,6 @@ CREATE TABLE ovpnfiles (file_id INT AUTO_INCREMENT PRIMARY KEY, file_name VARCHA
 
 CREATE TABLE IF NOT EXISTS server_files (sf_id INT NOT NULL, sfname VARCHAR(20) NOT NULL, sftext VARCHAR(20) NOT NULL);
 
-INSERT INTO ovpnclients (user_name, user_type) VALUES('Server', 'S');
+INSERT INTO ovpnclients (user_name, user_type) VALUES('Server', '0');
+
 
